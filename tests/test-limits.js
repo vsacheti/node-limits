@@ -89,7 +89,7 @@ suite.add(new YUITest.TestCase({
         // Emit has been overridden
         Assert.isUndefined(req.emit.call(null, 'dummy'));
         Assert.isTrue(next);
-        
+
         req.emit.call(null, 'data', new Buffer(500));
         Assert.areEqual(resp.status, 0);
 
@@ -109,11 +109,11 @@ suite.add(new YUITest.TestCase({
 
         // if in fact limit has not been called,
         // req.emit will not be wrapped and will
-        // return true 
+        // return true
         Assert.isTrue(req.emit.call(null, 'dummy'));
         Assert.isTrue(next);
     },
-    
+
     'Verify that we can disable limits' : function() {
         var testee = mod_limits({
             "enable" : "",
@@ -165,11 +165,11 @@ suite.add(new YUITest.TestCase({
         testee(req, resp, function() {
             next = true;
         });
-        
+
         Assert.isUndefined(req.emit.call(null, 'dummy'));
         Assert.isTrue(next);
         Assert.areEqual(http.globalAgent.maxSockets, 1000);
-        
+
         var longString = "",
             i = 0;
         for (i=0; i < 50; i++) {
@@ -234,7 +234,6 @@ suite.add(new YUITest.TestCase({
             "inc_req_timeout": 1,
             "out_req_timeout": 1
         });
-
         var req = getReq(),
             resp = new http.ServerResponse(req),
             next = false;
@@ -245,7 +244,7 @@ suite.add(new YUITest.TestCase({
         testee(req, resp, function() {
             next = true;
         });
-        Assert.isTrue(next);
+        Assert.isTrue(next , 'next is: ' + next);
         resp.status = 0;
 
         this.wait( function() {
@@ -255,8 +254,7 @@ suite.add(new YUITest.TestCase({
 
     'Verify that we can close outgoing connection' : function() {
         var testee = mod_limits({
-            "enable" : "true",
-            "global_timeout" : 1
+            "enable" : "true"
         });
 
         // set global mock variables
@@ -268,6 +266,11 @@ suite.add(new YUITest.TestCase({
             resp = new http.ServerResponse(req),
             next = false,
             err = null;
+
+        req.mod_config = {
+            "global_timeout" : 1
+        };
+
 
         // Copy dummy functions
         patchObj(getResp(), resp);
@@ -386,13 +389,13 @@ suite.add(new YUITest.TestCase({
         var req = getReq(),
             resp = getResp(),
             next = false;
-            
+
         testee(req, resp, function() {
             next = true;
         });
         Assert.isTrue(next);
         Assert.isTrue(resp.status !== 413);
-            
+
     },
     'Verify that limit give 413 for over the length url' : function() {
         var testee = mod_limits({
@@ -403,13 +406,13 @@ suite.add(new YUITest.TestCase({
         var req = getReq(),
             resp = getResp(),
             next = false;
-            
+
         testee(req, resp, function() {
             next = true;
         });
         Assert.isTrue(!next);
         Assert.isTrue(resp.status === 413);
-            
+
     },
     'Verify that globalAgent maxSockets is set' : function() {
         http.globalAgent.maxSockets = 10;
@@ -418,7 +421,7 @@ suite.add(new YUITest.TestCase({
             "max_sockets" : 0
         });
         Assert.areEqual(10, http.globalAgent.maxSockets);
-        
+
         testee = mod_limits({
             "enable" : "true",
             "max_sockets" : 100
@@ -428,17 +431,17 @@ suite.add(new YUITest.TestCase({
         var req = getReq(),
             resp = getResp(),
             next = false;
-        
+
         req.mod_config = {
-            "max_sockets" : 1000    
+            "max_sockets" : 1000
         }
         testee(req, resp, function() {
             next = true;
         });
-        
+
         Assert.areEqual(1000, http.globalAgent.maxSockets);
     }
-    
+
 }));
 
 // vim:ts=4 sw=4 et
